@@ -47,6 +47,7 @@ resource "aws_codebuild_project" "build" {
     type            = "GITHUB"
     location        = local.github_repository_url
     git_clone_depth = 1
+    buildspec       = "server/buildspec.yml"
 
     git_submodules_config {
       fetch_submodules = true
