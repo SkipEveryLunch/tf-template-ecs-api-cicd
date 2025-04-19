@@ -38,10 +38,6 @@ resource "aws_codebuild_project" "build" {
       name  = "IMAGE_TAG"
       value = "latest"
     }
-    environment_variable {
-      name  = "CONTAINER_NAME"
-      value = "ecs-api-cicd-container"
-    }
   }
 
   source {
