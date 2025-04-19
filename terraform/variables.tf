@@ -44,3 +44,10 @@ variable "github_repository" {
   description = "GitHubリポジトリのURL（例：https://github.com/username/repo.git）"
   type        = string
 }
+
+variable "github_target_branch" {
+  description = "GitHubのターゲットブランチ名"
+  type        = string
+}
+
+
