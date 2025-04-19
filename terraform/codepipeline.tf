@@ -107,6 +107,7 @@ resource "aws_codepipeline" "pipeline" {
       provider        = "ECS"
       input_artifacts = ["build_output"]
       version         = "1"
+      role_arn        = aws_iam_role.codedeploy_role.arn
 
       configuration = {
         ClusterName = aws_ecs_cluster.this.name
