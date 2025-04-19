@@ -53,4 +53,7 @@ locals {
   # ssh接続用に使うVPNのアドレス
   vpn_ssh_data = jsondecode(data.aws_secretsmanager_secret_version.vpn_ssh.secret_string)
   vpn_ssh_ip   = local.vpn_ssh_data["ip-address"]
+
+  # GithubのフルURL
+  github_repository_url = "https://github.com/${var.github_repository_id}.git"
 }

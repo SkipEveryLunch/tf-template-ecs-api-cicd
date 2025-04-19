@@ -40,9 +40,13 @@ variable "s3_bucket_suffix" {
   type        = string
 }
 
-variable "github_repository" {
-  description = "GitHubリポジトリのURL（例：https://github.com/username/repo.git）"
-  type        = string
+# GitHubリポジトリのID
+# 形式: organization_name/repository_name
+# 例: octocat/Hello-World
+# 注意: GitHubのリポジトリURL（https://github.com/octocat/Hello-World）から抽出する場合は、
+# organization_nameとrepository_nameの部分のみを使用してください。
+variable "github_repository_id" {
+  type = string
 }
 
 variable "github_target_branch" {
