@@ -467,3 +467,19 @@ resource "aws_iam_role_policy" "codedeploy_policy" {
     ]
   })
 }
+
+resource "aws_iam_role_policy" "codepipeline_assume_deploy_role" {
+  name = "AllowPipelineToAssumeDeployRole"
+  role = aws_iam_role.codepipeline_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect   = "Allow",
+        Action   = "sts:AssumeRole",
+        Resource = aws_iam_role.codedeploy_role.arn
+      }
+    ]
+  })
+}
