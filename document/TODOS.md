@@ -1,4 +1,7 @@
-# GitHubとのコネクション設定について
+このTerraformリソースはApplyするだけではなく
+追加の操作が必要です。
+
+# 1. GitHubとのコネクション設定
 
 GitHubとのコネクション自体はTerraformの`aws_codestarconnections_connection`リソースで定義。だが接続プロバイダーとの認証完了（GitHub Appのインストール＆承認）はコンソール操作が必須
 
