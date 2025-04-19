@@ -20,10 +20,12 @@ phases:
       - echo Pushing the Docker image...
       - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
       - echo Writing image definitions file...
-      - printf '[{"name":"%s","imageUri":"%s"}]' $CONTAINER_NAME $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG > imagedefinitions.json
+      - printf '[{"name":"%s","imageUri":"%s"}]' $CONTAINER_NAME $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG > ../imagedefinitions.json
+      # アプリケーション仕様ファイルはルートディレクトリに作成
+      - cp appspec.yml ../appspec.yml
 
 artifacts:
   files:
-    - imagedefinitions.json
-    - appspec.yml
+    - imagedefinitions.json  # ECSデプロイ用のイメージ定義
+    - appspec.yml           # CodeDeploy用のアプリケーション仕様
   name: build_output 
