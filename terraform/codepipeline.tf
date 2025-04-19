@@ -20,6 +20,7 @@ resource "aws_codebuild_project" "build" {
     image                       = "aws/codebuild/standard:5.0"
     type                        = "LINUX_CONTAINER"
     image_pull_credentials_type = "CODEBUILD"
+    privileged_mode             = true
 
     environment_variable {
       name  = "AWS_DEFAULT_REGION"
@@ -47,6 +48,7 @@ resource "aws_codebuild_project" "build" {
     type            = "GITHUB"
     location        = local.github_repository_url
     git_clone_depth = 1
+    buildspec       = "server/buildspec.yml"
 
     git_submodules_config {
       fetch_submodules = true
