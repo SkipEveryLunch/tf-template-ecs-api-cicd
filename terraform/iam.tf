@@ -321,6 +321,15 @@ resource "aws_iam_role_policy" "codepipeline_policy" {
           aws_iam_role.ecs_task_execution_role.arn,
           aws_iam_role.ecs_task_role.arn
         ]
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "codestar-connections:UseConnection"
+        ]
+        Resource = [
+          aws_codestarconnections_connection.github.arn
+        ]
       }
     ]
   })
