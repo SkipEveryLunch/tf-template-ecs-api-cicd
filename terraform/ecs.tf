@@ -26,10 +26,6 @@ resource "aws_ecs_task_definition" "main" {
   execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
   task_role_arn            = aws_iam_role.ecs_task_role.arn
 
-  runtime_platform {
-    platform_version = "1.4.0"
-  }
-
   container_definitions = jsonencode([
     {
       name      = "app"
