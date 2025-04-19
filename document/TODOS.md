@@ -16,4 +16,3 @@ GitHubとのコネクション自体はTerraformの`aws_codestarconnections_conn
    - 「Connect to GitHub → Authorize AWS Connector for GitHub」を実行
 
 3. 認証完了後、接続のステータスが「AVAILABLE」に変更されることを確認
- 
