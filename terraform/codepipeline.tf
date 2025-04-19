@@ -58,8 +58,9 @@ resource "aws_codebuild_project" "build" {
 
 # CodePipeline
 resource "aws_codepipeline" "pipeline" {
-  name     = "ecs-api-cicd-pipeline"
-  role_arn = aws_iam_role.codepipeline_role.arn
+  name         = "ecs-api-cicd-pipeline"
+  role_arn     = aws_iam_role.codepipeline_role.arn
+  pipeline_type = "V2"
 
   artifact_store {
     location = aws_s3_bucket.codepipeline_artifacts.bucket
