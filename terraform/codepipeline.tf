@@ -12,7 +12,7 @@ resource "aws_codebuild_project" "build" {
   build_timeout = "5"
 
   artifacts {
-    type = "NO_ARTIFACTS"
+    type = "CODEPIPELINE"
   }
 
   environment {
@@ -45,14 +45,8 @@ resource "aws_codebuild_project" "build" {
   }
 
   source {
-    type            = "GITHUB"
-    location        = local.github_repository_url
-    git_clone_depth = 1
-    buildspec       = "server/buildspec.yml"
-
-    git_submodules_config {
-      fetch_submodules = true
-    }
+    type      = "CODEPIPELINE"
+    buildspec = "server/buildspec.yml"
   }
 
   source_version = var.github_target_branch
