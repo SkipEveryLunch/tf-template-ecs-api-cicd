@@ -1,0 +1,54 @@
+# ビルドコマンド:
+# docker buildx build --platform linux/amd64 -t express-prisma-todo:production -f Dockerfile.production .
+# 
+# ビルドとプッシュを同時に行う場合:
+# docker buildx build --platform linux/amd64 -t <ECRリポジトリURL>:<タグ> -f Dockerfile.production . --push
+# 
+# 注意点:
+# - --platform linux/amd64 はM1/M2 Macでx86_64アーキテクチャのイメージをビルドするために必要
+# - buildxを使用することでマルチプラットフォームビルドが可能
+# - ECRにプッシュする場合は事前にaws ecr get-login-passwordでログインが必要
+
+# ビルドステージ
+FROM node:18 AS builder
+
+WORKDIR /app
+
+# 依存関係ファイルをコピー
+COPY package*.json ./
+COPY prisma ./prisma/
+
+# 依存関係をインストール
+RUN npm ci
+
+# Prismaのクライアントを生成
+RUN npx prisma generate
+
+# アプリケーションのソースコードをコピー
+COPY . .
+
+# 本番環境ステージ
+FROM node:18
+
+WORKDIR /app
+
+# 必要なファイルのみをコピー
+COPY --from=builder /app/package*.json ./
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/src ./src
+
+# 非rootユーザーを作成
+RUN groupadd -r appgroup && useradd -r -g appgroup appuser
+USER appuser
+
+# ポートを公開
+EXPOSE 3000
+
+# ヘルスチェック用の環境変数
+ENV NODE_ENV=production
+
+# アプリケーションを起動
+CMD ["npm", "start"] 
+
+# docker buildx build --platform linux/amd64 -t app-app:latest -f Dockerfile.production .
