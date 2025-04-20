@@ -60,5 +60,6 @@ phases:
 artifacts:
   files:
     - imagedefinitions.json  # ECSデプロイ用のイメージ定義
+    - migration-buildspec.yml # マイグレーション用のビルド仕様
     - appspec.yml           # CodeDeploy用のアプリケーション仕様
   name: build_output 
