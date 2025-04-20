@@ -82,6 +82,10 @@ resource "aws_codebuild_project" "migration" {
       name  = "IMAGE_TAG"
       value = "latest"
     }
+    environment_variable {
+      name  = "DATABASE_URL"
+      value = local.database_url_for_prisma
+    }
   }
 
   source {
