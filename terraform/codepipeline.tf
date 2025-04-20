@@ -86,7 +86,7 @@ resource "aws_codebuild_project" "migration" {
 
   source {
     type      = "CODEPIPELINE"
-    buildspec = "server/migration-buildspec.yml"
+    buildspec = "migration-buildspec.yml"
   }
 
   source_version = var.github_target_branch
