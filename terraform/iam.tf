@@ -317,8 +317,58 @@ resource "aws_iam_role_policy" "codepipeline_policy" {
         Resource = [
           aws_codestarconnections_connection.github.arn
         ]
+      },
+      # 現在のTerraformの使用でV2パイプラインを使おうとすると、
+      # CodeDeployがCodePipeline用のIAMロールを使ってしまうので、
+      # CodeBuild用IAMロールに追加
+      {
+        Effect = "Allow"
+        Action = [
+          "ecs:DescribeClusters",
+          "ecs:ListClusters",
+          "ecs:DescribeServices",
+          "ecs:ListServices",
+          "ecs:DescribeTaskDefinition",
+          "ecs:DescribeTasks",
+          "ecs:UpdateService",
+        ]
+        Resource = "*"
+      },
+      {
+        Sid    = "AllowPassEcsRoles",
+        Effect = "Allow",
+        Action = "iam:PassRole",
+        Resource = [
+          aws_iam_role.ecs_task_execution_role.arn,
+          aws_iam_role.ecs_task_role.arn,
+        ],
+        Condition = {
+          StringEquals = {
+            "iam:PassedToService" : [
+              "ecs.amazonaws.com",
+              "ecs-tasks.amazonaws.com"
+            ]
+          }
+        }
       }
     ]
+  })
+}
+
+# 現在のTerraformの使用でV2パイプラインを使おうとすると、
+# CodeDeployがCodePipeline用のIAMロールを使ってしまうので、
+# CodeBuild用IAMロールに追加
+resource "aws_iam_role_policy" "pipeline_assume_codedeploy" {
+  name = "AllowPipelineToAssumeCodeDeployRole"
+  role = aws_iam_role.codepipeline_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect   = "Allow",
+      Action   = "sts:AssumeRole",
+      Resource = aws_iam_role.codedeploy_role.arn
+    }]
   })
 }
 
@@ -463,22 +513,6 @@ resource "aws_iam_role_policy" "codedeploy_policy" {
         Resource = [
           "${aws_s3_bucket.codepipeline_artifacts.arn}/*"
         ]
-      }
-    ]
-  })
-}
-
-resource "aws_iam_role_policy" "codepipeline_assume_deploy_role" {
-  name = "AllowPipelineToAssumeDeployRole"
-  role = aws_iam_role.codepipeline_role.id
-
-  policy = jsonencode({
-    Version = "2012-10-17",
-    Statement = [
-      {
-        Effect   = "Allow",
-        Action   = "sts:AssumeRole",
-        Resource = aws_iam_role.codedeploy_role.arn
       }
     ]
   })
