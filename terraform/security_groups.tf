@@ -110,4 +110,37 @@ resource "aws_security_group_rule" "db_egress" {
   protocol          = "-1"
   cidr_blocks       = ["0.0.0.0/0"]
   description       = "Allow all outbound traffic"
-} 
+}
+
+# CodeBuild用のセキュリティグループ
+resource "aws_security_group" "codebuild" {
+  name        = "${var.service_prefix}-codebuild"
+  description = "Security group for CodeBuild"
+  vpc_id      = aws_vpc.this.id
+
+  tags = {
+    Name = "${var.service_prefix}-codebuild"
+  }
+}
+
+# CodeBuildのすべての出力トラフィックを許可
+resource "aws_security_group_rule" "codebuild_egress" {
+  security_group_id = aws_security_group.codebuild.id
+  type              = "egress"
+  from_port         = 0
+  to_port           = 0
+  protocol          = "-1"
+  cidr_blocks       = ["0.0.0.0/0"]
+  description       = "Allow all outbound traffic"
+}
+
+# RDSのセキュリティグループにCodeBuildからのPostgres接続を許可するルールを追加
+resource "aws_security_group_rule" "db_ingress_from_codebuild" {
+  security_group_id        = aws_security_group.db.id
+  type                     = "ingress"
+  from_port                = 5432
+  to_port                  = 5432
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.codebuild.id
+  description              = "Allow PostgreSQL traffic from CodeBuild"
+}

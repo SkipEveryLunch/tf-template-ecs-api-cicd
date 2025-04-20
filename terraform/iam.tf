@@ -440,6 +440,19 @@ resource "aws_iam_role_policy" "codebuild_policy" {
           "ecr:PutImage"
         ]
         Resource = "*"
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "ec2:CreateNetworkInterface",
+          "ec2:DescribeNetworkInterfaces",
+          "ec2:DeleteNetworkInterface",
+          "ec2:DescribeSubnets",
+          "ec2:DescribeSecurityGroups",
+          "ec2:DescribeVpcs",
+          "ec2:DescribeDhcpOptions"
+        ]
+        Resource = "*"
       }
     ]
   })

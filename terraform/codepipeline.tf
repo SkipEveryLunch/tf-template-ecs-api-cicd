@@ -88,6 +88,12 @@ resource "aws_codebuild_project" "migration" {
     }
   }
 
+  vpc_config {
+    vpc_id             = aws_vpc.this.id
+    subnets            = [aws_subnet.private_a.id, aws_subnet.private_c.id]
+    security_group_ids = [aws_security_group.codebuild.id]
+  }
+
   source {
     type      = "CODEPIPELINE"
     buildspec = "migration-buildspec.yml"
