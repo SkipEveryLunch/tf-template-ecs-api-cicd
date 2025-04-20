@@ -447,10 +447,18 @@ resource "aws_iam_role_policy" "codebuild_policy" {
           "ec2:CreateNetworkInterface",
           "ec2:DescribeNetworkInterfaces",
           "ec2:DeleteNetworkInterface",
+          "ec2:DescribeDhcpOptions",
           "ec2:DescribeSubnets",
           "ec2:DescribeSecurityGroups",
           "ec2:DescribeVpcs",
-          "ec2:DescribeDhcpOptions"
+          "ec2:CreateNetworkInterfacePermission",
+          "ec2:RunInstances",
+          "ec2:TerminateInstances",
+          "ec2:DescribeInstances",
+          "ec2:AuthorizeSecurityGroupIngress",
+          "ec2:AuthorizeSecurityGroupEgress",
+          "ec2:RevokeSecurityGroupIngress",
+          "ec2:RevokeSecurityGroupEgress"
         ]
         Resource = "*"
       }
