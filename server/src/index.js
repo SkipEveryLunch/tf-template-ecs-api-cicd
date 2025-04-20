@@ -10,6 +10,11 @@ const prisma = new PrismaClient();
 app.use(cors());
 app.use(express.json());
 
+// ヘルスチェックエンドポイント
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'ok' });
+});
+
 // 全てのTodoを取得
 app.get('/todos', async (req, res) => {
   try {
