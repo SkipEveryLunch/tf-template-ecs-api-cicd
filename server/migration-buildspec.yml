@@ -21,9 +21,10 @@ phases:
       - 'echo "Running database migrations..."'
       - |
         docker run --rm \
-        -e DATABASE_URL=$DATABASE_URL \
-        $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG \
-        sh -c "npx prisma migrate deploy --verbose"
+          -e DATABASE_URL=$DATABASE_URL \
+          -e DEBUG="prisma:migrate" \
+          $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG \
+          sh -c "npx prisma migrate deploy"
 
   post_build:
     commands:
