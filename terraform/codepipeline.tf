@@ -48,6 +48,50 @@ resource "aws_codebuild_project" "build" {
   source_version = var.github_target_branch
 }
 
+# Migration CodeBuild Project
+resource "aws_codebuild_project" "migration" {
+  name          = "ecs-api-cicd-migration"
+  description   = "Migration project for ECS API"
+  service_role  = aws_iam_role.codebuild_role.arn
+  build_timeout = "5"
+
+  artifacts {
+    type = "CODEPIPELINE"
+  }
+
+  environment {
+    compute_type                = "BUILD_GENERAL1_SMALL"
+    image                       = "aws/codebuild/standard:5.0"
+    type                        = "LINUX_CONTAINER"
+    image_pull_credentials_type = "CODEBUILD"
+    privileged_mode             = true
+
+    environment_variable {
+      name  = "AWS_DEFAULT_REGION"
+      value = var.default_region
+    }
+    environment_variable {
+      name  = "AWS_ACCOUNT_ID"
+      value = data.aws_caller_identity.current.account_id
+    }
+    environment_variable {
+      name  = "IMAGE_REPO_NAME"
+      value = aws_ecr_repository.main.name
+    }
+    environment_variable {
+      name  = "IMAGE_TAG"
+      value = "latest"
+    }
+  }
+
+  source {
+    type      = "CODEPIPELINE"
+    buildspec = "server/migration-buildspec.yml"
+  }
+
+  source_version = var.github_target_branch
+}
+
 # CodePipeline
 resource "aws_codepipeline" "pipeline" {
   name          = "ecs-api-cicd-pipeline"
@@ -98,6 +142,25 @@ resource "aws_codepipeline" "pipeline" {
   }
 
   stage {
+    name = "Migration"
+
+    action {
+      name             = "Migration"
+      category         = "Build"
+      owner            = "AWS"
+      provider         = "CodeBuild"
+      input_artifacts  = ["build_output"]
+      output_artifacts = ["migration_output"]
+      version          = "1"
+
+      configuration = {
+        ProjectName   = aws_codebuild_project.migration.name
+        PrimarySource = "build_output"
+      }
+    }
+  }
+
+  stage {
     name = "Deploy"
 
     action {
@@ -105,7 +168,7 @@ resource "aws_codepipeline" "pipeline" {
       category        = "Deploy"
       owner           = "AWS"
       provider        = "ECS"
-      input_artifacts = ["build_output"]
+      input_artifacts = ["migration_output"]
       version         = "1"
 
       configuration = {
