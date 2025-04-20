@@ -285,6 +285,8 @@ resource "aws_iam_role_policy" "codepipeline_policy" {
           "s3:GetObject",
           "s3:GetObjectVersion",
           "s3:GetBucketVersioning",
+          "s3:ListBucket",
+          "s3:GetBucketLocation",
           "s3:PutObject"
         ]
         Resource = [
@@ -534,9 +536,13 @@ resource "aws_iam_role_policy" "codedeploy_policy" {
         Effect = "Allow"
         Action = [
           "s3:GetObject",
-          "s3:GetObjectVersion"
+          "s3:GetObjectVersion",
+          "s3:ListBucket",
+          "s3:GetBucketLocation",
+          "s3:GetBucketVersioning"
         ]
         Resource = [
+          aws_s3_bucket.codepipeline_artifacts.arn,
           "${aws_s3_bucket.codepipeline_artifacts.arn}/*"
         ]
       }

@@ -25,9 +25,32 @@ resource "aws_s3_bucket_policy" "codepipeline_artifacts" {
         Action = [
           "s3:GetObject",
           "s3:GetObjectVersion",
+          "s3:ListBucket",
+          "s3:GetBucketLocation",
+          "s3:GetBucketVersioning",
           "s3:PutObject"
         ]
-        Resource = "${aws_s3_bucket.codepipeline_artifacts.arn}/*"
+        Resource = [
+          aws_s3_bucket.codepipeline_artifacts.arn,
+          "${aws_s3_bucket.codepipeline_artifacts.arn}/*"
+        ]
+      },
+      {
+        Effect = "Allow"
+        Principal = {
+          AWS = aws_iam_role.codedeploy_role.arn
+        }
+        Action = [
+          "s3:GetObject",
+          "s3:GetObjectVersion",
+          "s3:ListBucket",
+          "s3:GetBucketLocation",
+          "s3:GetBucketVersioning"
+        ]
+        Resource = [
+          aws_s3_bucket.codepipeline_artifacts.arn,
+          "${aws_s3_bucket.codepipeline_artifacts.arn}/*"
+        ]
       }
     ]
   })
