@@ -10,7 +10,7 @@
 # - ECRにプッシュする場合は事前にaws ecr get-login-passwordでログインが必要
 
 # ビルドステージ
-FROM node:18 AS builder
+FROM public.ecr.aws/docker/library/node:18 AS builder
 
 WORKDIR /app
 
