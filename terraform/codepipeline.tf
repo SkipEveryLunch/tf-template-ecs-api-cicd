@@ -84,11 +84,9 @@ resource "aws_codebuild_project" "migration" {
     }
   }
 
-  # ビルドステージの出力（build_output）はルートディレクトリに配置されるため、
-  # マイグレーションステージではルートを指定
   source {
     type      = "CODEPIPELINE"
-    buildspec = "migration-buildspec.yml"
+    buildspec = "server/migration-buildspec.yml"
   }
 
   source_version = var.github_target_branch
