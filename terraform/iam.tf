@@ -284,10 +284,13 @@ resource "aws_iam_role_policy" "codepipeline_policy" {
         Action = [
           "s3:GetObject",
           "s3:GetObjectVersion",
-          "s3:GetBucketVersioning",
           "s3:ListBucket",
           "s3:GetBucketLocation",
-          "s3:PutObject"
+          "s3:GetBucketVersioning",
+          "s3:ListBucketVersions",
+          "s3:PutObject",
+          "s3:PutObjectAcl",
+          "s3:PutObjectVersionAcl"
         ]
         Resource = [
           aws_s3_bucket.codepipeline_artifacts.arn,
@@ -323,9 +326,6 @@ resource "aws_iam_role_policy" "codepipeline_policy" {
           aws_codestarconnections_connection.github.arn
         ]
       },
-      # 現在のTerraformの使用でV2パイプラインを使おうとすると、
-      # CodeDeployがCodePipeline用のIAMロールを使ってしまうので、
-      # CodeBuild用IAMロールに追加
       {
         Effect = "Allow"
         Action = [
@@ -342,13 +342,13 @@ resource "aws_iam_role_policy" "codepipeline_policy" {
         Resource = "*"
       },
       {
-        Sid    = "AllowPassEcsRoles",
-        Effect = "Allow",
-        Action = "iam:PassRole",
+        Sid    = "AllowPassEcsRoles"
+        Effect = "Allow"
+        Action = "iam:PassRole"
         Resource = [
           aws_iam_role.ecs_task_execution_role.arn,
           aws_iam_role.ecs_task_role.arn,
-        ],
+        ]
         Condition = {
           StringEquals = {
             "iam:PassedToService" : [
@@ -539,12 +539,10 @@ resource "aws_iam_role_policy" "codedeploy_policy" {
           "s3:GetObjectVersion",
           "s3:ListBucket",
           "s3:GetBucketLocation",
-          "s3:GetBucketVersioning"
+          "s3:GetBucketVersioning",
+          "s3:ListBucketVersions"
         ]
-        Resource = [
-          aws_s3_bucket.codepipeline_artifacts.arn,
-          "${aws_s3_bucket.codepipeline_artifacts.arn}/*"
-        ]
+        Resource = aws_s3_bucket.codepipeline_artifacts.arn
       }
     ]
   })
