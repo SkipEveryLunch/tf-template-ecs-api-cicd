@@ -6,7 +6,7 @@ phases:
       - echo Logging in to Amazon ECR...
       - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
       - echo Getting image tag from imagedefinitions.json...
-      - "IMAGE_TAG=$(jq -r '.[0].imageUri' imagedefinitions.json | cut -d':' -f2)"
+      - 'IMAGE_TAG=$(jq -r ".[0].imageUri" imagedefinitions.json | cut -d":" -f2)'
       - echo Using image tag: $IMAGE_TAG
   build:
     commands:
