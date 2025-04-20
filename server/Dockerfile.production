@@ -50,5 +50,3 @@ ENV NODE_ENV=production
 
 # アプリケーションを起動
 CMD ["npm", "start"] 
-
-# docker buildx build --platform linux/amd64 -t app-app:latest -f Dockerfile.production .

@@ -3,10 +3,12 @@ version: 0.2
 phases:
   pre_build:
     commands:
-      - echo "Logging in to Amazon ECR..."
-      - aws ecr get-login-password --region $AWS_DEFAULT_REGION \
-        | docker login --username AWS --password-stdin \
-        $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
+      - echo "Logging in to Amazon ECR
+      - |
+        docker login \
+          --username AWS \
+          --password "$(aws ecr get-login-password --region $AWS_DEFAULT_REGION)" \
+          $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
       - echo "Getting image tag from imagedefinitions.json..."
       - 'IMAGE_TAG=$(jq -r ".[0].imageUri" imagedefinitions.json | cut -d":" -f2)'
       - 'echo "Using image tag: $IMAGE_TAG"'
@@ -14,7 +16,7 @@ phases:
   build:
     commands:
       - 'echo "Pulling image: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG"'
-      - 'docker pull $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG'
+      - "docker pull $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG"
       - 'echo "DATABASE_URL: $DATABASE_URL"'
       - 'echo "Running database migrations..."'
       - >-
