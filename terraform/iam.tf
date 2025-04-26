@@ -279,6 +279,18 @@ resource "aws_iam_role_policy" "codepipeline_policy" {
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
+      # バケットレベル操作
+      {
+        Effect   = "Allow",
+        Action   = [
+          "s3:ListBucket",
+          "s3:GetBucketLocation",
+          "s3:GetBucketVersioning",
+          "s3:ListBucketVersions"
+        ],
+        Resource = aws_s3_bucket.codepipeline_artifacts.arn
+      },
+      # オブジェクトレベル操作
       {
         Effect = "Allow"
         Action = [
@@ -306,15 +318,6 @@ resource "aws_iam_role_policy" "codepipeline_policy" {
         Resource = [
           aws_codebuild_project.build.arn,
           aws_codebuild_project.migration.arn
-        ]
-      },
-      {
-        Effect = "Allow"
-        Action = [
-          "iam:PassRole"
-        ]
-        Resource = [
-          aws_iam_role.codedeploy_role.arn
         ]
       },
       {
@@ -359,23 +362,6 @@ resource "aws_iam_role_policy" "codepipeline_policy" {
         }
       }
     ]
-  })
-}
-
-# 現在のTerraformの使用でV2パイプラインを使おうとすると、
-# CodeDeployがCodePipeline用のIAMロールを使ってしまうので、
-# CodeBuild用IAMロールに追加
-resource "aws_iam_role_policy" "pipeline_assume_codedeploy" {
-  name = "AllowPipelineToAssumeCodeDeployRole"
-  role = aws_iam_role.codepipeline_role.id
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [{
-      Effect   = "Allow",
-      Action   = "sts:AssumeRole",
-      Resource = aws_iam_role.codedeploy_role.arn
-    }]
   })
 }
 
@@ -463,152 +449,6 @@ resource "aws_iam_role_policy" "codebuild_policy" {
           "ec2:RevokeSecurityGroupEgress"
         ]
         Resource = "*"
-      }
-    ]
-  })
-}
-
-# CodeDeploy用のIAMロール
-resource "aws_iam_role" "codedeploy_role" {
-  name = "${var.service_prefix}-codedeploy-role"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = "sts:AssumeRole"
-        Effect = "Allow"
-        Principal = {
-          Service = "codedeploy.amazonaws.com"
-        }
-      },
-      {
-        Action = "sts:AssumeRole"
-        Effect = "Allow"
-        Principal = {
-          Service = "codepipeline.amazonaws.com"
-        }
-      }
-    ]
-  })
-}
-
-# CodeDeploy用のIAMポリシー
-resource "aws_iam_role_policy" "codedeploy_policy" {
-  name = "${var.service_prefix}-codedeploy-policy"
-  role = aws_iam_role.codedeploy_role.id
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect = "Allow"
-        Action = [
-          "ecs:DescribeServices",
-          "ecs:CreateTaskSet",
-          "ecs:UpdateServicePrimaryTaskSet",
-          "ecs:DeleteTaskSet",
-          "ecs:DescribeTaskSets",
-          "ecs:DescribeTasks",
-          "ecs:ListTasks",
-          "ecs:RegisterTaskDefinition",
-          "ecs:DescribeTaskDefinition",
-          "ecs:UpdateService",
-          "ecs:DescribeClusters",
-          "ecs:ListClusters",
-          "ecs:ListServices",
-          "ecs:DescribeCapacityProviders",
-          "ecs:ListCapacityProviders"
-        ]
-        Resource = "*"
-      },
-      {
-        Effect = "Allow"
-        Action = [
-          "iam:PassRole"
-        ]
-        Resource = [
-          aws_iam_role.ecs_task_execution_role.arn,
-          aws_iam_role.ecs_task_role.arn
-        ]
-      },
-      {
-        Effect = "Allow"
-        Action = [
-          "s3:GetObject",
-          "s3:GetObjectVersion",
-          "s3:ListBucket",
-          "s3:GetBucketLocation",
-          "s3:GetBucketVersioning",
-          "s3:ListBucketVersions"
-        ]
-        Resource = aws_s3_bucket.codepipeline_artifacts.arn
-      }
-    ]
-  })
-}
-
-# CodePipeline用のS3バケットポリシー
-resource "aws_s3_bucket_policy" "codepipeline_artifacts" {
-  bucket = aws_s3_bucket.codepipeline_artifacts.id
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect = "Allow"
-        Principal = {
-          AWS = aws_iam_role.codepipeline_role.arn
-        }
-        Action = [
-          "s3:GetObject",
-          "s3:GetObjectVersion",
-          "s3:ListBucket",
-          "s3:GetBucketLocation",
-          "s3:GetBucketVersioning",
-          "s3:ListBucketVersions",
-          "s3:PutObject"
-        ]
-        Resource = [
-          aws_s3_bucket.codepipeline_artifacts.arn,
-          "${aws_s3_bucket.codepipeline_artifacts.arn}/*"
-        ]
-      },
-      {
-        Effect = "Allow"
-        Principal = {
-          AWS = "arn:aws:sts::${data.aws_caller_identity.current.account_id}:role/${var.service_prefix}-codepipeline-role"
-        }
-        Action = [
-          "s3:GetObject",
-          "s3:GetObjectVersion",
-          "s3:ListBucket",
-          "s3:GetBucketLocation",
-          "s3:GetBucketVersioning",
-          "s3:ListBucketVersions",
-          "s3:PutObject"
-        ]
-        Resource = [
-          aws_s3_bucket.codepipeline_artifacts.arn,
-          "${aws_s3_bucket.codepipeline_artifacts.arn}/*"
-        ]
-      },
-      {
-        Effect = "Allow"
-        Principal = {
-          AWS = aws_iam_role.codedeploy_role.arn
-        }
-        Action = [
-          "s3:GetObject",
-          "s3:GetObjectVersion",
-          "s3:ListBucket",
-          "s3:GetBucketLocation",
-          "s3:GetBucketVersioning",
-          "s3:ListBucketVersions"
-        ]
-        Resource = [
-          aws_s3_bucket.codepipeline_artifacts.arn,
-          "${aws_s3_bucket.codepipeline_artifacts.arn}/*"
-        ]
       }
     ]
   })
