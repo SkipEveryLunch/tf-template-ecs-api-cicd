@@ -281,8 +281,8 @@ resource "aws_iam_role_policy" "codepipeline_policy" {
     Statement = [
       # バケットレベル操作
       {
-        Effect   = "Allow",
-        Action   = [
+        Effect = "Allow",
+        Action = [
           "s3:ListBucket",
           "s3:GetBucketLocation",
           "s3:GetBucketVersioning",
@@ -308,6 +308,14 @@ resource "aws_iam_role_policy" "codepipeline_policy" {
           aws_s3_bucket.codepipeline_artifacts.arn,
           "${aws_s3_bucket.codepipeline_artifacts.arn}/*"
         ]
+      },
+      {
+        Effect = "Allow",
+        Action = [
+          "kms:Decrypt",
+          "kms:GenerateDataKey*"
+        ],
+        Resource = "*"
       },
       {
         Effect = "Allow"
