@@ -19,7 +19,7 @@ resource "aws_acm_certificate" "main" {
 
 # APIサブドメイン用のRoute 53 レコード (ALBへのルーティング)
 resource "aws_route53_record" "main" {
-  zone_id = data.aws_route53_zone.this.zone_id
+  zone_id = aws_route53_zone.main.zone_id
   name    = local.subdomain
   type    = "A"
 
@@ -40,7 +40,7 @@ resource "aws_route53_record" "cert_validation" {
     }
   } : {}
 
-  zone_id = data.aws_route53_zone.this.zone_id
+  zone_id = aws_route53_zone.main.zone_id
   name    = each.value.name
   type    = each.value.type
   records = [each.value.record]
@@ -54,6 +54,9 @@ resource "aws_acm_certificate_validation" "main" {
   count                   = var.create_certificate ? 1 : 0
   certificate_arn         = aws_acm_certificate.main[0].arn
   validation_record_fqdns = [for record in aws_route53_record.cert_validation : record.fqdn]
+
+  # NSレコードの更新が完了してから検証を開始する
+  depends_on = [aws_route53domains_registered_domain.main]
 }
 
 # 出力変数
