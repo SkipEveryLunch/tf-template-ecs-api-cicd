@@ -16,7 +16,7 @@ resource "aws_db_subnet_group" "this" {
 resource "aws_rds_cluster" "this" {
   cluster_identifier = "${var.service_prefix}-aurora-cluster"
   engine             = "aurora-postgresql"
-  engine_version     = "16.8" # PostgreSQL Serverless v2対応のエンジンバージョン
+  engine_version     = "16.4" # PostgreSQL Serverless v2対応のエンジンバージョン
   # serverless v2では、プロビジョン°クラスター内で
   # サーバーレスインスタンスを運用するため、engine_modeはprovisioned
   engine_mode   = "provisioned"
