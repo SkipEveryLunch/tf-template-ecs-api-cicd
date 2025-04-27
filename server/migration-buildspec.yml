@@ -29,3 +29,9 @@ phases:
   post_build:
     commands:
       - echo "Migration completed successfully."
+
+# アーティファクトの定義（CodePipelineの次のステージに渡すファイル。builsフェーズからそのまま引き継ぐ）
+artifacts:
+  files:
+    - imagedefinitions.json
+  name: migration_output
