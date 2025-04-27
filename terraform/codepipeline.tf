@@ -178,7 +178,7 @@ resource "aws_codepipeline" "pipeline" {
       category        = "Deploy"
       owner           = "AWS"
       provider        = "ECS"
-      input_artifacts = ["migration_output"]
+      input_artifacts = ["build_output"]
       version         = "1"
 
       configuration = {
